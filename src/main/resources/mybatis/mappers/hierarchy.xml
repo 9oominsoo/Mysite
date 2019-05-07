@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hierarchy">
+
+  <select id="getList" parameterType="com.josh.dto.HierarchyDto" resultType="com.josh.dto.HierarchyDto">
+    <![CDATA[
+      select r.no as no,
+             r.user_no as userNo,
+             r.title as title,
+             r.content as content,
+             r.hit as hit,
+             r.reg_Date as regDate,
+             r.group_no as groupNo,
+             r.order_no as orderNo,
+             r.depth as depth,
+             r.status as status,
+             u.name as userName
+      from users u join rboard r
+      on u.no = r.user_no
+      order by groupNo, orderNo
+    ]]>
+  </select>
+  
+  <insert id="insertNew" parameterType="com.josh.dto.HierarchyDto">
+    <![CDATA[
+      insert into rboard (no,
+                          user_no,
+                          title,
+                          content,
+                          hit,
+                          reg_Date,
+                          group_no,
+                          order_no,
+                          depth,
+                          status
+                          )
+      values(seq_hierarchy_no.nextval, #{userNo}, #{title}, #{content}, 0, SYSDATE, seq_hierarchy_no.nextval, 1, 0, 'live')
+    ]]>
+  </insert>
+
+  <insert id="insertReply" parameterType="com.josh.dto.HierarchyDto">
+    <![CDATA[
+		 insert into rboard (no,
+                          user_no,
+                          title,
+                          content,
+                          hit,
+                          reg_Date,
+                          group_no,
+                          order_no,
+                          depth,
+                          status
+                          )
+      values(seq_hierarchy_no.nextval, #{userNo}, #{title}, #{content}, 0, SYSDATE, #{groupNo}, #{orderNo}, #{depth}, 'live')
+    ]]>
+  </insert>
+  
+  <update id="updateNo" parameterType="map">
+  	<![CDATA[
+  		update rboard set order_no = order_no+1
+   		where order_no > #{orderNo} AND group_no = #{groupNo}
+  	]]>
+  </update>
+  
+</mapper>
